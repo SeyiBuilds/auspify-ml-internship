@@ -21,7 +21,33 @@ FIGURE_DIR = os.path.join(PROJECT_ROOT, "outputs", "figures")
 REPORT_DIR = os.path.join(PROJECT_ROOT, "outputs", "reports")
 
 # Preferred dataset file names, checked in order.
-CANDIDATE_FILES = ("Dataset.csv", "netflix_titles.csv", "sample_netflix_titles.csv")
+CANDIDATE_FILES = (
+    "Dataset.csv",
+    "netflix_titles.csv",
+    "schema_match_sample.csv",
+    "sample_netflix_titles.csv",
+)
+
+# The internship export never leaves a cell empty. Gaps are filled with the
+# literal string "Not Given", so a plain isna() check finds nothing missing and
+# flags such as has_director come out as 1 for every row. These tokens are
+# converted back to real missing values before any feature is computed.
+MISSING_TOKENS = {
+    "not given",
+    "not available",
+    "n/a",
+    "na",
+    "none",
+    "null",
+    "unknown",
+    "-",
+    "",
+    "nan",
+}
+
+# cast and description are absent from the internship export, so anything built
+# from them is created only when the source column is actually present.
+OPTIONAL_TEXT_COLUMNS = ("cast", "description")
 
 EXPECTED_COLUMNS = [
     "show_id",
@@ -95,6 +121,25 @@ def _normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(columns={k: v for k, v in aliases.items() if k in df.columns})
 
 
+def normalise_missing(df: pd.DataFrame) -> pd.DataFrame:
+    """Turn placeholder strings such as "Not Given" into real missing values."""
+    # Text columns are dtype "str" on pandas 3 and "object" on pandas 2, so the
+    # test is for "not numeric and not a date" rather than for one dtype name.
+    replaced = 0
+    for column in df.columns:
+        dtype = df[column].dtype
+        if pd.api.types.is_numeric_dtype(dtype) or pd.api.types.is_datetime64_any_dtype(dtype):
+            continue
+        mask = df[column].astype("object").astype(str).str.strip().str.lower().isin(MISSING_TOKENS)
+        if not mask.any():
+            continue
+        replaced += int(mask.sum())
+        df[column] = df[column].astype("object").mask(mask, np.nan)
+    if replaced:
+        print(f"  Converted {replaced} placeholder value(s) such as 'Not Given' to missing")
+    return df
+
+
 def parse_duration(df: pd.DataFrame) -> pd.DataFrame:
     """Split the mixed duration column into numeric minutes and seasons."""
     duration = df.get("duration", pd.Series(index=df.index, dtype=object)).astype(str)
@@ -161,15 +206,22 @@ def add_content_features(df: pd.DataFrame) -> pd.DataFrame:
         )
 
     df["genre_count"] = count_items(df.get("listed_in", pd.Series("", index=df.index)))
-    df["cast_count"] = count_items(df.get("cast", pd.Series("", index=df.index)))
     df["country_count"] = count_items(df.get("country", pd.Series("", index=df.index)))
 
-    description = df.get("description", pd.Series("", index=df.index)).fillna("").astype(str)
-    df["description_length"] = description.str.len()
-    df["description_word_count"] = description.str.split().apply(len)
+    # Features below exist only if their source column does. Creating a column
+    # of zeros for an absent field would feed every model a constant that looks
+    # like data but carries no information.
+    if "cast" in df.columns:
+        df["cast_count"] = count_items(df["cast"])
+        df["has_cast"] = df["cast"].notna().astype(int)
 
-    df["has_director"] = df.get("director", pd.Series(np.nan, index=df.index)).notna().astype(int)
-    df["has_cast"] = df.get("cast", pd.Series(np.nan, index=df.index)).notna().astype(int)
+    if "description" in df.columns:
+        description = df["description"].fillna("").astype(str)
+        df["description_length"] = description.str.len()
+        df["description_word_count"] = description.str.split().apply(len)
+
+    if "director" in df.columns:
+        df["has_director"] = df["director"].notna().astype(int)
 
     df["primary_genre"] = (
         df.get("listed_in", pd.Series("", index=df.index))
@@ -199,6 +251,7 @@ def load_netflix(filename: str | None = None, verbose: bool = True) -> pd.DataFr
 
     df = _normalise_columns(df)
     df = df.drop_duplicates()
+    df = normalise_missing(df)
 
     for column in ("type", "title", "rating", "duration", "listed_in", "description"):
         if column in df.columns:
@@ -217,7 +270,8 @@ def load_netflix(filename: str | None = None, verbose: bool = True) -> pd.DataFr
         missing = [c for c in EXPECTED_COLUMNS if c not in df.columns]
         print(f"Loaded {os.path.basename(path)}: {raw_rows} rows -> {len(df)} after cleaning, {df.shape[1]} columns")
         if missing:
-            print(f"  Warning: expected columns not present: {', '.join(missing)}")
+            print(f"  Note: columns not in this export: {', '.join(missing)}")
+            print("  Features derived from them are skipped rather than filled with zeros.")
     return df
 
 

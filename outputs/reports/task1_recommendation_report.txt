@@ -2,51 +2,51 @@ Task 1 - Recommendation samples
 ============================================================
 
 Because you watched: The Great British Baking Show
-                   title  similarity    type                                                     listed_in  release_year rating
-Big Dreams, Small Spaces      0.2960 TV Show          British TV Shows, International TV Shows, Reality TV          2017   TV-G
-                 Morphle      0.1911 TV Show                                    British TV Shows, Kids' TV          2020   TV-Y
-        The Bachelorette      0.1854 TV Show                                 Reality TV, Romantic TV Shows          2010  TV-14
-      Bringing Sexy Back      0.1677 TV Show                            International TV Shows, Reality TV          2015  TV-14
-                The Hunt      0.1598 TV Show             British TV Shows, Docuseries, Science & Nature TV          2015  TV-PG
-              Vai Anitta      0.1578 TV Show                Docuseries, International TV Shows, Reality TV          2018  TV-MA
-       The Circle France      0.1541 TV Show                            International TV Shows, Reality TV          2020  TV-MA
-      Nailed It! Germany      0.1498 TV Show                            International TV Shows, Reality TV          2020  TV-14
-        Nailed It! Spain      0.1449 TV Show International TV Shows, Reality TV, Spanish-Language TV Shows          2019  TV-PG
-       Palazuelos mi rey      0.1415 TV Show International TV Shows, Reality TV, Spanish-Language TV Shows          2019  TV-14
+                                    title  similarity    type                                            listed_in  release_year rating
+                 Big Dreams, Small Spaces      0.6720 TV Show British TV Shows, International TV Shows, Reality TV          2017   TV-G
+               Terrace House: Aloha State      0.4406 TV Show                   International TV Shows, Reality TV          2017  TV-14
+                                    Buddi      0.4305 TV Show                           British TV Shows, Kids' TV          2020   TV-Y
+                       Bringing Sexy Back      0.4284 TV Show                   International TV Shows, Reality TV          2015  TV-14
+                             Danger Mouse      0.4205 TV Show                           British TV Shows, Kids' TV          2016  TV-Y7
+The Parisian Agency: Exclusive Properties      0.4182 TV Show                   International TV Shows, Reality TV          2021   TV-G
+                        The Circle France      0.4150 TV Show                   International TV Shows, Reality TV          2020  TV-MA
+                       Nailed It! Germany      0.4062 TV Show                   International TV Shows, Reality TV          2020  TV-14
+                                Octonauts      0.3849 TV Show                           British TV Shows, Kids' TV          2015   TV-Y
+                                      W1A      0.3690 TV Show                        British TV Shows, TV Comedies          2017  TV-MA
 
 Because you watched: Crime Stories: India Detectives
-                                           title  similarity    type                                            listed_in  release_year rating
-                                Caught on Camera      0.5088 TV Show         British TV Shows, Crime TV Shows, Docuseries          2015  TV-MA
-                  Killer Women with Piers Morgan      0.5052 TV Show         British TV Shows, Crime TV Shows, Docuseries          2017  TV-MA
-                       History's Greatest Hoaxes      0.4660 TV Show                         British TV Shows, Docuseries          2016  TV-PG
-                                           Heist      0.4065 TV Show                           Crime TV Shows, Docuseries          2021  TV-MA
-                                 Shadow of Truth      0.3978 TV Show   Crime TV Shows, Docuseries, International TV Shows          2016  TV-MA
-                                   Court Justice      0.3725 TV Show   Crime TV Shows, Docuseries, International TV Shows          2017  TV-MA
-                                     Dirty Money      0.3543 TV Show                           Crime TV Shows, Docuseries          2020  TV-MA
-                     Genius of the Ancient World      0.3025 TV Show British TV Shows, Docuseries, International TV Shows          2015  TV-PG
-Don't F**k with Cats: Hunting an Internet Killer      0.2972 TV Show                           Crime TV Shows, Docuseries          2019  TV-MA
-                                     Drugs, Inc.      0.2882 TV Show                           Crime TV Shows, Docuseries          2015  TV-MA
+                         title  similarity    type                                                listed_in  release_year rating
+              Caught on Camera      0.9130 TV Show             British TV Shows, Crime TV Shows, Docuseries          2015  TV-MA
+Killer Women with Piers Morgan      0.9130 TV Show             British TV Shows, Crime TV Shows, Docuseries          2017  TV-MA
+     History's Greatest Hoaxes      0.7186 TV Show                             British TV Shows, Docuseries          2016  TV-PG
+                         Heist      0.6689 TV Show                               Crime TV Shows, Docuseries          2021  TV-MA
+                 Court Justice      0.6153 TV Show       Crime TV Shows, Docuseries, International TV Shows          2017  TV-MA
+               Shadow of Truth      0.6104 TV Show       Crime TV Shows, Docuseries, International TV Shows          2016  TV-MA
+       The Great Train Robbery      0.5957 TV Show British TV Shows, Crime TV Shows, International TV Shows          2013     NR
+                   Drugs, Inc.      0.5753 TV Show                               Crime TV Shows, Docuseries          2015  TV-MA
+                   Dirty Money      0.5753 TV Show                               Crime TV Shows, Docuseries          2020  TV-MA
+                      Wormwood      0.5609 TV Show                               Crime TV Shows, Docuseries          2017  TV-14
 
 Because you watched: Falsa identidad
                            title  similarity    type                                                                listed_in  release_year rating
-              Someone Has to Die      0.1437 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2020  TV-MA
-                   Wild District      0.1395 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2019  TV-MA
-               Palazuelos mi rey      0.1312 TV Show            International TV Shows, Reality TV, Spanish-Language TV Shows          2019  TV-14
-                   Paquita Salas      0.1241 TV Show           International TV Shows, Spanish-Language TV Shows, TV Comedies          2018  TV-MA
-                    Ingobernable      0.1222 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2018  TV-MA
-                Nailed It! Spain      0.1199 TV Show            International TV Shows, Reality TV, Spanish-Language TV Shows          2019  TV-PG
-Pablo Escobar, el patrón del mal      0.1140 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2012  TV-MA
-               Qué pena tu serie      0.1099 TV Show     International TV Shows, Romantic TV Shows, Spanish-Language TV Shows          2015  TV-MA
-                          Jaguar      0.1064 TV Show International TV Shows, Spanish-Language TV Shows, TV Action & Adventure          2021  TV-MA
-                  Always a Witch      0.1060 TV Show           International TV Shows, Spanish-Language TV Shows, TV Comedies          2019  TV-14
+                    Ingobernable      0.7981 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2018  TV-MA
+       The Mess You Leave Behind      0.7738 TV Show             International TV Shows, Spanish-Language TV Shows, TV Dramas          2020  TV-MA
+                   Wild District      0.7364 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2019  TV-MA
+Pablo Escobar, el patrón del mal      0.7364 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2012  TV-MA
+                   Paquita Salas      0.6974 TV Show           International TV Shows, Spanish-Language TV Shows, TV Comedies          2018  TV-MA
+                  Always a Witch      0.6816 TV Show           International TV Shows, Spanish-Language TV Shows, TV Comedies          2019  TV-14
+              Someone Has to Die      0.6603 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2020  TV-MA
+               Qué pena tu serie      0.6464 TV Show     International TV Shows, Romantic TV Shows, Spanish-Language TV Shows          2015  TV-MA
+            The Cook of Castamar      0.6440 TV Show     International TV Shows, Romantic TV Shows, Spanish-Language TV Shows          2021  TV-MA
+                          Jaguar      0.6430 TV Show International TV Shows, Spanish-Language TV Shows, TV Action & Adventure          2021  TV-MA
 
 Evaluation metrics
 ------------------------------------------------------------
 sampled_titles: 200
 top_n: 10
-genre_precision_at_n: 0.9095
-type_match_rate: 0.941
-mean_similarity: 0.1272
+genre_precision_at_n: 0.979
+type_match_rate: 0.9855
+mean_similarity: 0.4498
 catalogue_coverage: 0.7986
 random_genre_precision: 0.2455
-lift_over_random: 0.664
+lift_over_random: 0.7335

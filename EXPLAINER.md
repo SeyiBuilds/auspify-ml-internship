@@ -29,20 +29,45 @@ checks for that name first and falls back to the sample committed here.
 
 ## 2. The dataset
 
-One row per Netflix title, twelve columns:
+### The important part: their file is not the Kaggle file
+
+The `Dataset.csv` supplied for the internship has **10 columns, not 12**. There
+is no `cast` column and no `description` column. It also writes every missing
+value as the literal string `"Not Given"` instead of leaving the cell empty,
+and formats dates as `9/25/2021` rather than `September 25, 2021`.
+
+All three matter:
+
+- Building a feature from a column that does not exist gives you a column of
+  zeros. The model treats it as data, it carries no information, and nothing
+  errors to tell you.
+- `"Not Given"` is a string, so `isna()` reports nothing missing. The
+  `has_director` flag would have come out as 1 for all 700 rows while looking
+  completely normal. About a third of directors are `"Not Given"`.
+- The loader converts those placeholders to real missing values before any
+  feature is computed, which is why ordering inside `load_netflix` matters.
+
+There is a lesson here worth keeping: a schema assumption is a bug waiting to
+happen. The pipeline was written against the 12 column public dataset and would
+have run on their file without a single error while quietly producing worse
+models.
+
+### The columns
+
+One row per Netflix title:
 
 | Column | What it holds |
 | --- | --- |
 | `show_id` | unique id |
 | `type` | Movie or TV Show |
-| `title`, `director`, `cast` | who made it and who is in it |
+| `title`, `director` | who made it (`cast` is absent from the internship export) |
 | `country` | production country, sometimes several |
 | `date_added` | when it arrived on the platform |
 | `release_year` | when it was originally released |
 | `rating` | age certificate, for example TV-MA or PG-13 |
 | `duration` | "93 min" for films, "4 Seasons" for series |
 | `listed_in` | genres, comma separated |
-| `description` | one paragraph synopsis |
+| `description` | one paragraph synopsis (absent from the internship export) |
 
 The sample committed here holds 700 titles. The real file is larger, so every
 number in this document will shift when you swap it in. The direction of the
@@ -50,6 +75,10 @@ findings should not.
 
 **There is no viewership, revenue or user rating column.** That single fact
 shapes most of the design decisions below.
+
+Two samples are committed. `schema_match_sample.csv` matches the internship
+schema exactly and is what development runs against. `sample_netflix_titles.csv`
+keeps all 12 columns, so the code is exercised against both shapes.
 
 ---
 
@@ -130,8 +159,8 @@ a title can be a comedy and a drama at once.
 
 **What it does.** Give it a title, it returns similar titles.
 
-**How.** Genres, cast, director, country, type, rating and description are
-pasted into one text field per title. Genres are repeated three times and cast
+**How.** Genres, director, country, type and rating are pasted into one text
+field per title, along with cast and description when the dataset has them. Genres are repeated three times and cast
 and director twice, so TF-IDF weights them more heavily than loose description
 wording. Then every title is compared to every other with cosine similarity.
 
@@ -146,8 +175,9 @@ instead:
   recommender that only ever suggests the same twenty popular titles would
   score well on precision and badly here.
 
-**The number that matters.** Genre precision is around 0.91 but a random
-recommender already scores about 0.25, because a handful of genres dominate the
+**The number that matters.** Genre precision is around 0.98 on the internship
+schema, and about 0.91 on the 12 column version, but a random recommender
+already scores about 0.25, because a handful of genres dominate the
 catalogue. The lift over random, around 0.66, is the real result. Quote that.
 
 ### Task 2: Movie or TV Show
@@ -252,6 +282,17 @@ selection rule also prefers the simplest k within one percent of the best.
 
 The general lesson: if your answer sits at the boundary of what you searched,
 you measured your search, not the data.
+
+### A schema assumption, caught by checking the real file
+
+Everything above was built against the public 12 column Kaggle dataset. Opening
+the actual internship file showed 10 columns, placeholder strings instead of
+empty cells, and a different date format. None of that would have raised an
+error. It would simply have produced a model with dead features and a
+`has_director` flag stuck at 1.
+
+The general lesson: look at the real file before trusting that your assumptions
+about it hold.
 
 ### Missing baselines everywhere
 

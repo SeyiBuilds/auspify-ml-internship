@@ -26,9 +26,27 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Place the dataset at `data/Dataset.csv`. The loader also accepts
-`data/netflix_titles.csv` and falls back to the small sample committed for
-testing.
+Place the dataset at `data/Dataset.csv`. The loader checks that name first and
+falls back to the samples committed here.
+
+### What the internship export actually contains
+
+The provided `Dataset.csv` differs from the public Kaggle version in three ways
+that the pipeline handles explicitly:
+
+| Difference | Effect | How it is handled |
+| --- | --- | --- |
+| 10 columns, not 12: no `cast`, no `description` | Any feature built from them would be a column of zeros | Those features are created only when their source column exists |
+| Missing values written as the literal string `"Not Given"` | `isna()` finds nothing missing, so `has_director` is 1 for every row | Placeholder tokens are converted to real missing values before any feature is computed |
+| Dates formatted `M/D/YYYY` | Fails a fixed-format parser | Dates are parsed flexibly |
+
+Roughly a third of directors and nine percent of countries are `"Not Given"`,
+so the second point matters more than it looks.
+
+Two sample files are committed: `schema_match_sample.csv` matches the
+internship schema exactly and is the default for development, and
+`sample_netflix_titles.csv` keeps the full 12 columns so the code is tested
+against both shapes.
 
 ## Running the tasks
 

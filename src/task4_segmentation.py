@@ -203,13 +203,14 @@ def main() -> None:
     parser.add_argument("--k", type=int, default=None, help="Force a cluster count")
     parser.add_argument("--k-min", type=int, default=2)
     parser.add_argument("--k-max", type=int, default=15)
+    parser.add_argument("--data", default=None, help="Dataset file name inside data/")
     args = parser.parse_args()
 
     print("Task 4 - Netflix Content Segmentation")
     print("=" * 60)
 
     print("\nStep 1: Preparing features")
-    df = load_netflix()
+    df = load_netflix(args.data)
     matrix, _ = build_feature_matrix(df)
 
     print("\nStep 2: Choosing the number of clusters")

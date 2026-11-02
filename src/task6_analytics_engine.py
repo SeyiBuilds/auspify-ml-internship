@@ -57,9 +57,11 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     # duration_zscore, which compares length within a content type rather than
     # across types, is provided by common.add_relative_duration.
     df["is_movie"] = (df["type"].str.lower() == "movie").astype(int)
-    df["is_international"] = df["listed_in"].fillna("").str.contains("International", case=False).astype(int)
-    df["is_documentary"] = df["listed_in"].fillna("").str.contains("Document", case=False).astype(int)
-    df["is_stand_up"] = df["listed_in"].fillna("").str.contains("Stand-Up", case=False).astype(int)
+
+    genres = df["listed_in"].fillna("").astype(str)
+    df["is_international"] = genres.str.contains("International", case=False).astype(int)
+    df["is_documentary"] = genres.str.contains("Document", case=False).astype(int)
+    df["is_stand_up"] = genres.str.contains("Stand-Up", case=False).astype(int)
     df["is_multi_country"] = (df["country_count"] > 1).astype(int)
     df["is_multi_genre"] = (df["genre_count"] > 1).astype(int)
 
@@ -71,10 +73,14 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df["genre_frequency"] = df["primary_genre"].map(df["primary_genre"].value_counts())
     df["country_frequency"] = df["primary_country"].map(df["primary_country"].value_counts())
 
-    description = df["description"].fillna("").astype(str)
-    df["description_avg_word_len"] = description.apply(
-        lambda t: float(np.mean([len(w) for w in t.split()])) if t.split() else 0.0
-    )
+    # The internship export carries no description column, so anything derived
+    # from it is built only when the column is actually present.
+    if "description" in df.columns:
+        description = df["description"].fillna("").astype(str)
+        df["description_avg_word_len"] = description.apply(
+            lambda t: float(np.mean([len(w) for w in t.split()])) if t.split() else 0.0
+        )
+
     df["title_word_count"] = df["title"].fillna("").astype(str).str.split().apply(len)
 
     print(f"  Engineered feature set: {df.shape[1]} columns")
