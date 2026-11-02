@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -51,6 +52,11 @@ from common import REPORT_DIR, ensure_output_dirs, load_netflix, save_figure
 # them in produced 100 percent accuracy, which is a leaking model rather than a
 # good one. Duration is dropped and the genre labels are stripped of their type
 # markers so the model has to learn from real signal.
+#
+# The raw rating column is a third leak: every value starting with "TV-" is by
+# definition a television rating. The audience band (Kids, Family, Teen, Adult)
+# carries the same age information with the TV marker removed, so it is used
+# instead.
 NUMERIC_FEATURES = [
     "release_year",
     "genre_count",
@@ -64,7 +70,7 @@ NUMERIC_FEATURES = [
     "month_added",
     "years_to_platform",
 ]
-CATEGORICAL_FEATURES = ["rating", "clean_primary_genre", "primary_country"]
+CATEGORICAL_FEATURES = ["audience_band", "clean_primary_genre", "primary_country"]
 
 
 TYPE_MARKERS = re.compile(r"\b(tv\s*shows?|tv|movies?|films?)\b", flags=re.IGNORECASE)
@@ -117,9 +123,19 @@ def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
     )
 
 
+BASELINE_NAME = "Baseline (most frequent)"
+
+
 def get_models() -> dict:
-    """Step 3: the candidate classifiers to train and compare."""
+    """Step 3: the candidate classifiers, plus a do-nothing baseline.
+
+    Roughly two thirds of the catalogue is films, so a model that always
+    answers "Movie" already scores about 65 percent. The baseline makes that
+    floor explicit instead of leaving the reader to assume 97 percent is
+    impressive without a reference point.
+    """
     return {
+        BASELINE_NAME: DummyClassifier(strategy="most_frequent"),
         "Logistic Regression": LogisticRegression(max_iter=2000, random_state=42),
         "Decision Tree": DecisionTreeClassifier(max_depth=8, min_samples_leaf=5, random_state=42),
         "Random Forest": RandomForestClassifier(
@@ -153,6 +169,54 @@ def evaluate_model(name: str, pipeline: Pipeline, X_train, X_test, y_train, y_te
         "cv_accuracy_mean": round(cv_mean, 4),
         "cv_accuracy_std": round(cv_std, 4),
     }
+
+
+# Feature groups removed one at a time to see how much each one is really worth.
+ABLATIONS = {
+    "All features": [],
+    "Without metadata flags": ["has_director", "has_cast"],
+    "Without genre": ["clean_primary_genre"],
+    "Without metadata flags and genre": ["has_director", "has_cast", "clean_primary_genre"],
+    "Numeric features only": CATEGORICAL_FEATURES,
+}
+
+
+def run_ablation(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+    """Measure how much each feature group actually contributes.
+
+    `has_director` carries most of the signal, but that is a cataloguing habit
+    rather than a property of the content: Netflix records a director for films
+    and usually leaves it blank for series. A model leaning on it is learning
+    how the spreadsheet was filled in. Removing it shows what the model can do
+    from genre, length, cast size and description alone, which is the number
+    worth quoting.
+    """
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+    rows = []
+    for label, dropped in ABLATIONS.items():
+        columns = [c for c in X.columns if c not in dropped]
+        if not columns:
+            continue
+        pipeline = Pipeline(
+            [
+                ("prep", build_preprocessor(X[columns])),
+                ("model", RandomForestClassifier(n_estimators=300, min_samples_leaf=2, n_jobs=-1, random_state=42)),
+            ]
+        )
+        pipeline.fit(X_train[columns], y_train)
+        predictions = pipeline.predict(X_test[columns])
+        rows.append(
+            {
+                "feature_set": label,
+                "features_used": len(columns),
+                "accuracy": round(accuracy_score(y_test, predictions), 4),
+                "f1": round(f1_score(y_test, predictions, zero_division=0), 4),
+            }
+        )
+        print(f"  {label:<34} accuracy={rows[-1]['accuracy']:.4f}  f1={rows[-1]['f1']:.4f}")
+    return pd.DataFrame(rows)
 
 
 def plot_model_comparison(results: pd.DataFrame) -> None:
@@ -229,10 +293,14 @@ def main() -> None:
     table = pd.DataFrame(results).sort_values("accuracy", ascending=False).reset_index(drop=True)
     print(table.to_string(index=False))
 
-    best_name = table.iloc[0]["model"]
+    ranked = table[table["model"] != BASELINE_NAME]
+    best_name = ranked.iloc[0]["model"]
     best_pipeline = pipelines[best_name]
     print(f"\n  Best model: {best_name}")
     print("\n" + classification_report(y_test, best_pipeline.predict(X_test), target_names=["Movie", "TV Show"]))
+
+    print("\nAblation: how much is each feature group really worth?")
+    ablation = run_ablation(X, y)
 
     plot_model_comparison(table)
     plot_confusion(best_pipeline, X_test, y_test, best_name)
@@ -240,9 +308,14 @@ def main() -> None:
 
     ensure_output_dirs()
     table.to_csv(os.path.join(REPORT_DIR, "task2_model_comparison.csv"), index=False)
+    ablation.to_csv(os.path.join(REPORT_DIR, "task2_ablation.csv"), index=False)
     with open(os.path.join(REPORT_DIR, "task2_summary.json"), "w", encoding="utf-8") as handle:
-        json.dump({"best_model": best_name, "results": results}, handle, indent=2)
-    print("\nResults written to outputs/reports/task2_model_comparison.csv and task2_summary.json")
+        json.dump(
+            {"best_model": best_name, "results": results, "ablation": ablation.to_dict("records")},
+            handle,
+            indent=2,
+        )
+    print("\nResults written to outputs/reports/task2_model_comparison.csv, task2_ablation.csv and task2_summary.json")
 
 
 if __name__ == "__main__":

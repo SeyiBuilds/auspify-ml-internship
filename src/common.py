@@ -128,6 +128,29 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def add_relative_duration(df: pd.DataFrame) -> pd.DataFrame:
+    """Express duration relative to other titles of the same content type.
+
+    The raw duration column mixes two different units: a film is measured in
+    minutes (around 90 to 120) and a series in seasons (usually 1 to 5). Feeding
+    that single column into a model or a distance calculation compares minutes
+    against seasons, which is meaningless. The z-score is computed inside each
+    content type so "a long film" and "a long series" land on the same scale.
+    """
+    if "type" not in df.columns or "duration_value" not in df.columns:
+        df["duration_zscore"] = np.nan
+        return df
+
+    def standardise(series: pd.Series) -> pd.Series:
+        spread = series.std()
+        if not spread or np.isnan(spread) or spread == 0:
+            return series * 0.0
+        return (series - series.mean()) / spread
+
+    df["duration_zscore"] = df.groupby("type")["duration_value"].transform(standardise)
+    return df
+
+
 def add_content_features(df: pd.DataFrame) -> pd.DataFrame:
     """Counts and flags derived from the multi-value text columns."""
     def count_items(series: pd.Series) -> pd.Series:
@@ -185,6 +208,7 @@ def load_netflix(filename: str | None = None, verbose: bool = True) -> pd.DataFr
         df = df[df["type"].notna()]
 
     df = parse_duration(df)
+    df = add_relative_duration(df)
     df = add_time_features(df)
     df = add_content_features(df)
     df = df.reset_index(drop=True)

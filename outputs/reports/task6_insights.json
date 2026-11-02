@@ -1,21 +1,23 @@
 {
-  "best_model": "Logistic Regression",
+  "best_model": "Gradient Boosting",
   "insights": [
-    "Catalogue mix: 80.2 percent of titles are films and 19.8 percent are series.",
-    "Largest genres: Dramas (44 titles), International Movies (43 titles), Comedies (33 titles).",
-    "Acquisition peaked in 2019 with 38 titles added; the most recent year on record added 3.",
-    "In the last three years of additions, series made up 18.8 percent of new titles against 19.8 percent across the whole catalogue.",
-    "Median gap between release and arrival on the platform is 1 year(s), and 55.7 percent of titles arrive within a year of release.",
-    "Audience positioning: Adult 49.6 percent, Teen 24.0 percent, Family 17.8 percent, Kids 8.5 percent.",
-    "Leading production countries: United States (51), India (10), United Kingdom (9).",
-    "Best model: Logistic Regression at 42.3% accuracy and 0.401 macro F1, ahead of Gradient Boosting on macro F1 by 0.079."
+    "Catalogue mix: 65.3 percent of titles are films and 34.7 percent are series.",
+    "Largest genres: International Movies (217 titles), Dramas (173 titles), Comedies (132 titles).",
+    "Acquisition peaked in 2020 with 143 titles added; the most recent year on record added 123.",
+    "In the last three years of additions, series made up 37.4 percent of new titles against 34.7 percent across the whole catalogue.",
+    "Median gap between release and arrival on the platform is 1 year(s), and 54.1 percent of titles arrive within a year of release.",
+    "Audience positioning: Adult 45.9 percent, Teen 28.0 percent, Family 14.7 percent, Kids 11.4 percent.",
+    "Leading production countries: United States (258), India (80), United Kingdom (44).",
+    "Always guessing the largest audience band scores 46.0%, so the model's 55.4% is a lift of 9.4%, not a result that stands alone.",
+    "Best model: Gradient Boosting at 55.4% accuracy and 0.499 macro F1.",
+    "Strongest predictors of audience band: primary_genre_Kids' TV, release_year, primary_genre_Children & Family Movies, duration_zscore, duration_value."
   ],
   "metrics": {
-    "model": "Logistic Regression",
-    "accuracy": 0.4231,
-    "f1_macro": 0.4011,
-    "f1_weighted": 0.4343,
-    "cv_f1_macro_mean": 0.4244,
-    "cv_f1_macro_std": 0.0731
+    "model": "Gradient Boosting",
+    "accuracy": 0.554,
+    "f1_macro": 0.4989,
+    "f1_weighted": 0.5321,
+    "cv_f1_macro_mean": 0.4946,
+    "cv_f1_macro_std": 0.0644
   }
 }

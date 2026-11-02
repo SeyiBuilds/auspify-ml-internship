@@ -77,9 +77,16 @@ class NetflixRecommender:
         self.df = df.reset_index(drop=True)
         soup = self._build_soup(self.df)
         self.matrix = self.vectorizer.fit_transform(soup)
-        self.index_by_title = {
-            str(title).strip().lower(): idx for idx, title in enumerate(self.df["title"])
-        }
+        # A title can appear twice in the catalogue (a film and a series of the
+        # same name). Keeping the first occurrence makes lookups deterministic
+        # instead of depending on row order.
+        self.index_by_title = {}
+        for idx, title in enumerate(self.df["title"]):
+            key = str(title).strip().lower()
+            self.index_by_title.setdefault(key, idx)
+        duplicates = len(self.df) - len(self.index_by_title)
+        if duplicates:
+            print(f"  Note: {duplicates} duplicate title(s) in the catalogue, first occurrence used")
         print(f"  TF-IDF matrix: {self.matrix.shape[0]} titles x {self.matrix.shape[1]} terms")
         return self
 
@@ -91,10 +98,10 @@ class NetflixRecommender:
 
         key = str(title).strip().lower()
         if key not in self.index_by_title:
-            match = [t for t in self.index_by_title if key in t]
+            match = sorted((t for t in self.index_by_title if key in t), key=len)
             if not match:
                 raise KeyError(f"Title not found in the catalogue: {title}")
-            key = match[0]
+            key = match[0]  # shortest containing title is the closest match
             print(f"  Exact title not found, using closest match: {self.df.loc[self.index_by_title[key], 'title']}")
 
         idx = self.index_by_title[key]
@@ -120,10 +127,12 @@ class NetflixRecommender:
         sample_idx = rng.choice(population, size=sample_size, replace=False)
 
         genre_hits, type_hits, sims = [], [], []
+        recommended_items: set[int] = set()
         for idx in sample_idx:
             scores = cosine_similarity(self.matrix[idx], self.matrix).ravel()
             scores[idx] = -1.0
             top_idx = np.argsort(scores)[::-1][:top_n]
+            recommended_items.update(int(j) for j in top_idx)
 
             source_genres = self._genre_set(self.df.loc[idx, "listed_in"])
             matched = sum(
@@ -135,13 +144,31 @@ class NetflixRecommender:
             type_hits.append(sum(1 for j in top_idx if self.df.loc[j, "type"] == source_type) / top_n)
             sims.append(float(np.mean(scores[top_idx])))
 
+        # A random recommender is the reference point. Genre precision of 0.9
+        # only means something next to what picking titles at random scores,
+        # because a catalogue dominated by a few large genres will hit often by
+        # chance alone.
+        random_hits = []
+        for idx in sample_idx:
+            picks = rng.choice(population, size=top_n, replace=False)
+            source_genres = self._genre_set(self.df.loc[idx, "listed_in"])
+            matched = sum(
+                1 for j in picks if j != idx and source_genres & self._genre_set(self.df.loc[j, "listed_in"])
+            )
+            random_hits.append(matched / top_n)
+        random_precision = float(np.mean(random_hits))
+
         metrics = {
             "sampled_titles": sample_size,
             "top_n": top_n,
             "genre_precision_at_n": round(float(np.mean(genre_hits)), 4),
             "type_match_rate": round(float(np.mean(type_hits)), 4),
             "mean_similarity": round(float(np.mean(sims)), 4),
-            "catalogue_coverage": round(len(self.df) / len(self.df), 4),
+            # Share of the catalogue that showed up in at least one list. A low
+            # value means the recommender keeps pushing the same few titles.
+            "catalogue_coverage": round(len(recommended_items) / len(self.df), 4),
+            "random_genre_precision": round(random_precision, 4),
+            "lift_over_random": round(float(np.mean(genre_hits)) - random_precision, 4),
         }
         return metrics
 
@@ -152,21 +179,49 @@ class NetflixRecommender:
         return {g.strip().lower() for g in str(value).split(",") if g.strip()}
 
 
-def plot_similarity_distribution(recommender: NetflixRecommender, sample_size: int = 150) -> None:
-    """Visualise how similarity scores are distributed across the catalogue."""
+def plot_similarity_distribution(recommender: NetflixRecommender, sample_size: int = 200, top_n: int = 10) -> None:
+    """Compare random pairs against recommended pairs.
+
+    Plotting every pairwise score alone is not informative: almost all pairs of
+    titles have nothing in common, so the chart is one bar at zero and a long
+    empty tail. Setting the recommended pairs beside the random ones shows what
+    the recommender is actually doing, which is the point of the figure.
+    """
     rng = np.random.default_rng(7)
     size = min(sample_size, len(recommender.df))
     idx = rng.choice(len(recommender.df), size=size, replace=False)
     sims = cosine_similarity(recommender.matrix[idx], recommender.matrix)
-    np.fill_diagonal(sims[:, idx], np.nan)
-    values = sims[~np.isnan(sims)]
 
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    ax.hist(values, bins=50, color="#3b6ea5", edgecolor="white")
-    ax.set_title("Distribution of pairwise content similarity")
-    ax.set_xlabel("Cosine similarity")
-    ax.set_ylabel("Pair count")
-    ax.spines[["top", "right"]].set_visible(False)
+    # Every sampled title scores 1.0 against itself. Those self-matches have to
+    # be removed or they pile up a false spike at the right edge of the chart.
+    # sims[:, idx] returns a copy, so the removal is written back by position.
+    sims[np.arange(size), idx] = np.nan
+
+    all_pairs = sims[~np.isnan(sims)]
+    recommended = np.concatenate(
+        [np.sort(row[~np.isnan(row)])[::-1][:top_n] for row in sims]
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+    axes[0].hist(all_pairs, bins=60, color="#b8b8b8", edgecolor="white")
+    axes[0].set_yscale("log")
+    axes[0].set_title("All title pairs (log scale)")
+    axes[0].set_xlabel("Cosine similarity")
+    axes[0].set_ylabel("Pair count")
+
+    axes[1].hist(all_pairs, bins=60, color="#b8b8b8", alpha=0.6, density=True, label="Random pair")
+    axes[1].hist(recommended, bins=30, color="#3b6ea5", alpha=0.85, density=True, label=f"Top {top_n} recommended")
+    axes[1].set_title("Recommended pairs against random pairs")
+    axes[1].set_xlabel("Cosine similarity")
+    axes[1].set_ylabel("Density")
+    axes[1].legend(frameon=False)
+
+    for ax in axes:
+        ax.spines[["top", "right"]].set_visible(False)
+
+    fig.suptitle("Task 1 - what the recommender is separating", fontsize=12, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
     save_figure(fig, "task1_similarity_distribution.png")
     plt.close(fig)
 

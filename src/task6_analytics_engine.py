@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier, RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
@@ -53,6 +54,8 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add the richer features this task needs on top of the shared cleaning."""
     df = df.copy()
 
+    # duration_zscore, which compares length within a content type rather than
+    # across types, is provided by common.add_relative_duration.
     df["is_movie"] = (df["type"].str.lower() == "movie").astype(int)
     df["is_international"] = df["listed_in"].fillna("").str.contains("International", case=False).astype(int)
     df["is_documentary"] = df["listed_in"].fillna("").str.contains("Document", case=False).astype(int)
@@ -63,11 +66,6 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     # How quickly a title reached the platform after release.
     df["fast_acquisition"] = (df["years_to_platform"] <= 1).astype(int)
     df["is_original_window"] = (df["years_to_platform"] <= 0).astype(int)
-
-    # Relative duration inside its own content type.
-    df["duration_zscore"] = df.groupby("type")["duration_value"].transform(
-        lambda s: (s - s.mean()) / (s.std() if s.std() and s.std() > 0 else 1)
-    )
 
     # Catalogue weight of the primary genre and country.
     df["genre_frequency"] = df["primary_genre"].map(df["primary_genre"].value_counts())
@@ -150,8 +148,19 @@ def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
 
 
 # ---------------------------------------------------------------- Step 2
+BASELINE_NAME = "Baseline (most frequent)"
+
+
 def get_models() -> dict:
+    """Candidate models, with a do-nothing baseline for honest comparison.
+
+    Accuracy on its own is misleading when one class dominates: always guessing
+    the largest audience band already scores close to half. The baseline is
+    trained and scored alongside the real models so the lift is visible rather
+    than implied.
+    """
     return {
+        BASELINE_NAME: DummyClassifier(strategy="most_frequent"),
         "Logistic Regression": LogisticRegression(max_iter=3000, random_state=42),
         "Random Forest": RandomForestClassifier(
             n_estimators=400, min_samples_leaf=2, n_jobs=-1, random_state=42, class_weight="balanced"
@@ -203,6 +212,11 @@ def train_and_compare(X, y) -> tuple[pd.DataFrame, dict, tuple]:
         print(f"  {name:<20} accuracy={metrics['accuracy']:.4f}  f1_macro={metrics['f1_macro']:.4f}")
 
     table = pd.DataFrame(rows).sort_values("f1_macro", ascending=False).reset_index(drop=True)
+    baseline = table[table["model"] == BASELINE_NAME]
+    if not baseline.empty:
+        table["accuracy_lift_vs_baseline"] = (
+            table["accuracy"] - float(baseline.iloc[0]["accuracy"])
+        ).round(4)
     return table, runs, (X_train, X_test, y_train, y_test)
 
 
@@ -266,10 +280,18 @@ def generate_insights(df: pd.DataFrame, table: pd.DataFrame, best: ModelRun) -> 
             + "."
         )
 
+    baseline_row = table[table["model"] == BASELINE_NAME]
+    if not baseline_row.empty:
+        baseline_accuracy = float(baseline_row.iloc[0]["accuracy"])
+        insights.append(
+            f"Always guessing the largest audience band scores {baseline_accuracy:.1%}, so the "
+            f"model's {best.metrics['accuracy']:.1%} is a lift of "
+            f"{best.metrics['accuracy'] - baseline_accuracy:.1%}, not a result that stands alone."
+        )
+
     insights.append(
         f"Best model: {best.name} at {best.metrics['accuracy']:.1%} accuracy and "
-        f"{best.metrics['f1_macro']:.3f} macro F1, ahead of "
-        f"{table.iloc[1]['model']} on macro F1 by {table.iloc[0]['f1_macro'] - table.iloc[1]['f1_macro']:.3f}."
+        f"{best.metrics['f1_macro']:.3f} macro F1."
     )
 
     model = best.pipeline.named_steps["model"]
@@ -323,7 +345,8 @@ def build_dashboard(df: pd.DataFrame, table: pd.DataFrame) -> None:
     ax.set_title("Film runtime (minutes)")
 
     ax = axes[1][2]
-    ax.barh(table["model"][::-1], table["f1_macro"][::-1], color="#e08a3c")
+    colors = ["#b8b8b8" if m == BASELINE_NAME else "#e08a3c" for m in table["model"]][::-1]
+    ax.barh(table["model"][::-1], table["f1_macro"][::-1], color=colors)
     ax.set_xlim(0, 1)
     ax.set_title("Model macro F1")
     ax.tick_params(axis="y", labelsize=8)
@@ -384,7 +407,8 @@ def main() -> None:
     print()
     print(table.to_string(index=False))
 
-    best = runs[table.iloc[0]["model"]]
+    ranked = table[table["model"] != BASELINE_NAME]
+    best = runs[ranked.iloc[0]["model"]]
     report_text = classification_report(y_test, best.pipeline.predict(X_test), zero_division=0)
 
     print("\nStep 4: Generating automated insights")

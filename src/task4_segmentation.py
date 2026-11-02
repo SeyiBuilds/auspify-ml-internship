@@ -33,9 +33,13 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from common import REPORT_DIR, ensure_output_dirs, load_netflix, save_figure
 
+# duration_zscore is used instead of the raw duration column. The raw column
+# mixes minutes (films) with seasons (series), so clustering on it just splits
+# the catalogue by content type and calls it an insight. The z-score is
+# computed within each type, so "unusually long" means the same thing for both.
 NUMERIC_FEATURES = [
     "release_year",
-    "duration_value",
+    "duration_zscore",
     "genre_count",
     "cast_count",
     "country_count",
@@ -96,7 +100,24 @@ def select_k(matrix: np.ndarray, k_range: range) -> tuple[pd.DataFrame, int]:
         print(f"  k={k}: silhouette={rows[-1]['silhouette']:.4f}  inertia={rows[-1]['inertia']:.1f}")
 
     scores = pd.DataFrame(rows)
-    best_k = int(scores.loc[scores["silhouette"].idxmax(), "k"])
+
+    # Silhouette tends to creep upward as k grows, so taking the maximum just
+    # returns the largest k tested. Instead take the simplest model that is
+    # within one percent of the best score: fewer clusters that are just as
+    # well separated are easier to explain to a business audience.
+    best_score = scores["silhouette"].max()
+    within_tolerance = scores[scores["silhouette"] >= best_score * 0.99]
+    best_k = int(within_tolerance["k"].min())
+
+    # If the winner sits at the edge of the search range, the score never turned
+    # over and the "best" k is really just the last one tried. Say so rather
+    # than presenting a search artifact as a result.
+    peak_k = int(scores.loc[scores["silhouette"].idxmax(), "k"])
+    if peak_k == int(scores["k"].max()):
+        print(
+            f"  Warning: silhouette is still rising at k={peak_k}, the top of the search range. "
+            "The score has not peaked, so this k is bounded by the search, not by the data."
+        )
     return scores, best_k
 
 
@@ -164,10 +185,15 @@ def profile_clusters(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("titles", ascending=False).reset_index(drop=True)
 
 
-def name_cluster(row: pd.Series) -> str:
-    """Turn a cluster profile into a readable label."""
+def name_cluster(row: pd.Series, era_cutoff: float) -> str:
+    """Turn a cluster profile into a readable label.
+
+    The recent/catalogue split uses the median release year of the dataset
+    rather than a hardcoded year, so the labels stay correct if the dataset is
+    refreshed later.
+    """
     kind = "Movie" if row["movie_pct"] >= 60 else "Series" if row["movie_pct"] <= 40 else "Mixed"
-    era = "Recent" if row["median_release_year"] and row["median_release_year"] >= 2017 else "Catalogue"
+    era = "Recent" if row["median_release_year"] and row["median_release_year"] >= era_cutoff else "Catalogue"
     genre = str(row["top_genres"]).split(",")[0].strip() or "General"
     return f"{era} {kind} - {genre} ({row['top_audience']})"
 
@@ -176,7 +202,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Netflix content segmentation")
     parser.add_argument("--k", type=int, default=None, help="Force a cluster count")
     parser.add_argument("--k-min", type=int, default=2)
-    parser.add_argument("--k-max", type=int, default=9)
+    parser.add_argument("--k-max", type=int, default=15)
     args = parser.parse_args()
 
     print("Task 4 - Netflix Content Segmentation")
@@ -203,7 +229,20 @@ def main() -> None:
 
     print("\nStep 5: Interpreting clusters")
     profile = profile_clusters(df)
-    profile.insert(1, "label", profile.apply(name_cluster, axis=1))
+    era_cutoff = float(df["release_year"].median())
+    print(f"  Recent/catalogue cut-off taken from the data: {era_cutoff:.0f}")
+    labels = profile.apply(name_cluster, axis=1, era_cutoff=era_cutoff)
+
+    # Two clusters can share a dominant genre. Where that happens, fold in the
+    # next genre so each label still names a distinct group.
+    for value, count in labels.value_counts().items():
+        if count < 2:
+            continue
+        for position in labels[labels == value].index:
+            genres = [g.strip() for g in str(profile.loc[position, "top_genres"]).split(",")]
+            if len(genres) > 1:
+                labels.loc[position] = value.replace(genres[0], f"{genres[0]} and {genres[1]}")
+    profile.insert(1, "label", labels)
     pd.set_option("display.max_colwidth", 60)
     print(profile[["cluster", "label", "titles", "share_pct", "movie_pct", "top_genres"]].to_string(index=False))
 
