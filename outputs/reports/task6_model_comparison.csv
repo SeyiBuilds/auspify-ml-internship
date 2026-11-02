@@ -1,0 +1,5 @@
+model,accuracy,f1_macro,f1_weighted,cv_f1_macro_mean,cv_f1_macro_std
+Logistic Regression,0.4231,0.4011,0.4343,0.4244,0.0731
+Gradient Boosting,0.3462,0.3222,0.3385,0.4193,0.0676
+Extra Trees,0.3077,0.2635,0.3035,0.4553,0.0575
+Random Forest,0.1923,0.1761,0.1906,0.5662,0.0439

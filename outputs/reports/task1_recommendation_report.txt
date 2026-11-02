@@ -1,0 +1,35 @@
+Task 1 - Recommendation samples
+============================================================
+
+Because you watched: 13 Reasons Why
+                       title  similarity    type                                         listed_in  release_year rating
+                  The Writer      0.0926 TV Show Crime TV Shows, International TV Shows, TV Dramas          2019  TV-14
+21 Sarfarosh: Saragarhi 1897      0.0872 TV Show                 International TV Shows, TV Dramas          2018  TV-14
+                  20 Minutes      0.0814 TV Show Crime TV Shows, International TV Shows, TV Dramas          2013  TV-MA
+                   The Woods      0.0774 TV Show Crime TV Shows, International TV Shows, TV Dramas          2020  TV-MA
+                    The Yard      0.0739 TV Show Crime TV Shows, International TV Shows, TV Dramas          2019  TV-MA
+
+Because you watched: 13 Sins
+          title  similarity  type                                      listed_in  release_year rating
+            1BR      0.1088 Movie   Horror Movies, Independent Movies, Thrillers          2019  TV-MA
+          6-5=2      0.0960 Movie Horror Movies, International Movies, Thrillers          2014  TV-MA
+     14 Cameras      0.0894 Movie                       Horror Movies, Thrillers          2018  TV-MA
+  1st Summoning      0.0628 Movie              Horror Movies, Independent Movies          2018  TV-MA
+A Family Affair      0.0401 Movie            Documentaries, International Movies          2015  TV-PG
+
+Because you watched: 13TH
+                                                 title  similarity  type     listed_in  release_year rating
+13TH: A Conversation with Oprah Winfrey & Ava DuVernay      0.2029 Movie        Movies          2017    NaN
+                                              42 Grams      0.1070 Movie Documentaries          2017  TV-MA
+                                  A Murder in the Park      0.1033 Movie Documentaries          2014  PG-13
+                                 14 Minutes from Earth      0.0879 Movie Documentaries          2016  TV-MA
+                        The World's Most Wanted Animal      0.0869 Movie Documentaries          2018  TV-PG
+
+Evaluation metrics
+------------------------------------------------------------
+sampled_titles: 131
+top_n: 5
+genre_precision_at_n: 0.8901
+type_match_rate: 0.9588
+mean_similarity: 0.0802
+catalogue_coverage: 1.0

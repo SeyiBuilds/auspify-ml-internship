@@ -1,0 +1,10 @@
+cluster,label,titles,share_pct,movie_pct,median_release_year,median_duration,top_audience,top_genres,sample_titles
+0,Catalogue Movie - Comedies (Adult),24,18.3,100.0,2015,98.5,Adult,"Comedies, International Movies, Dramas","17 Again, 2 Alone in Paris, 2 States"
+6,Catalogue Movie - Dramas (Adult),22,16.8,100.0,2016,110.5,Adult,"Dramas, International Movies, Romantic Movies","18 Presents, 1898: Our Last Men in the Philippines, 20th Century Women"
+2,Recent Series - International TV Shows (Family),18,13.7,33.3,2018,2.0,Family,"International TV Shows, Kids' TV, Movies","13TH: A Conversation with Oprah Winfrey & Ava DuVernay, 2015 Dream Concert, 2036 Origin Unknown"
+5,Catalogue Movie - Thrillers (Adult),15,11.5,100.0,2016,103.0,Adult,"Thrillers, International Movies, Dramas","13 Sins, 14 Cameras, 1BR"
+1,Recent Series - International TV Shows (Adult),14,10.7,0.0,2017,1.0,Adult,"International TV Shows, TV Dramas, Crime TV Shows","13 Reasons Why, 20 Minutes, 21 Sarfarosh: Saragarhi 1897"
+8,Catalogue Movie - Action & Adventure (Adult),13,9.9,100.0,2016,101.0,Adult,"Action & Adventure, International Movies, Comedies","16 Blocks, 2307: Winter's Dream, 24 Hours to Live"
+3,Recent Movie - Documentaries (Adult),11,8.4,100.0,2017,81.0,Adult,"Documentaries, International Movies, Music & Musicals","13TH, 14 Minutes from Earth, 20 Feet From Stardom"
+7,Catalogue Movie - Children & Family Movies (Kids),9,6.9,100.0,2015,84.0,Kids,"Children & Family Movies, Comedies, Dramas","48 Christmas Wishes, A 2nd Chance, A Babysitter's Guide to Monster Hunting"
+4,Catalogue Movie - Dramas (Adult),5,3.8,100.0,1993,113.0,Adult,"Dramas, Action & Adventure, International Movies","14 Blades, 300 Miles to Heaven, A Clockwork Orange"
