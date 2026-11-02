@@ -1,23 +1,23 @@
 {
-  "best_model": "Gradient Boosting",
+  "best_model": "Random Forest",
   "insights": [
-    "Catalogue mix: 65.3 percent of titles are films and 34.7 percent are series.",
-    "Largest genres: International Movies (217 titles), Dramas (173 titles), Comedies (132 titles).",
-    "Acquisition peaked in 2020 with 143 titles added; the most recent year on record added 123.",
-    "In the last three years of additions, series made up 37.4 percent of new titles against 34.7 percent across the whole catalogue.",
-    "Median gap between release and arrival on the platform is 1 year(s), and 54.1 percent of titles arrive within a year of release.",
-    "Audience positioning: Adult 45.9 percent, Teen 28.0 percent, Family 14.7 percent, Kids 11.4 percent.",
-    "Leading production countries: United States (258), India (80), United Kingdom (44).",
-    "Always guessing the largest audience band scores 46.0%, so the model's 54.0% is a lift of 7.9%, not a result that stands alone.",
-    "Best model: Gradient Boosting at 54.0% accuracy and 0.491 macro F1.",
-    "Strongest predictors of audience band: release_year, primary_genre_Kids' TV, primary_genre_Children & Family Movies, duration_zscore, duration_value."
+    "Catalogue mix: 69.7 percent of titles are films and 30.3 percent are series.",
+    "Largest genres: International Movies (2752 titles), Dramas (2426 titles), Comedies (1674 titles).",
+    "Acquisition peaked in 2019 with 2016 titles added; the most recent year on record added 1498.",
+    "In the last three years of additions, series made up 31.4 percent of new titles against 30.3 percent across the whole catalogue.",
+    "Median gap between release and arrival on the platform is 1 year(s), and 55.0 percent of titles arrive within a year of release.",
+    "Audience positioning: Adult 46.0 percent, Teen 30.4 percent, Family 13.2 percent, Kids 10.4 percent.",
+    "Leading production countries: United States (3240), India (1057), United Kingdom (638).",
+    "Always guessing the largest audience band scores 46.0%, so the model's 60.9% is a lift of 14.9%, not a result that stands alone.",
+    "Best model: Random Forest at 60.9% accuracy and 0.590 macro F1.",
+    "Strongest predictors of audience band: genre_frequency, duration_value, duration_zscore, primary_genre_Kids' TV, primary_genre_Children & Family Movies."
   ],
   "metrics": {
-    "model": "Gradient Boosting",
-    "accuracy": 0.5396,
-    "f1_macro": 0.4913,
-    "f1_weighted": 0.5279,
-    "cv_f1_macro_mean": 0.4912,
-    "cv_f1_macro_std": 0.0818
+    "model": "Random Forest",
+    "accuracy": 0.6091,
+    "f1_macro": 0.5902,
+    "f1_weighted": 0.6111,
+    "cv_f1_macro_mean": 0.6035,
+    "cv_f1_macro_std": 0.0151
   }
 }

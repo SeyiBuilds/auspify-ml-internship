@@ -40,8 +40,28 @@ that the pipeline handles explicitly:
 | Missing values written as the literal string `"Not Given"` | `isna()` finds nothing missing, so `has_director` is 1 for every row | Placeholder tokens are converted to real missing values before any feature is computed |
 | Dates formatted `M/D/YYYY` | Fails a fixed-format parser | Dates are parsed flexibly |
 
-Roughly a third of directors and nine percent of countries are `"Not Given"`,
-so the second point matters more than it looks.
+In the supplied file, 2,588 of 8,790 directors (29 percent) and 287 countries
+are `"Not Given"`, and not a single cell is actually empty, so the second point
+matters more than it looks.
+
+## Results on the supplied dataset
+
+8,790 titles, 6,126 films and 2,664 series.
+
+| Task | Headline | Baseline | Read as |
+| --- | --- | --- | --- |
+| 1 Recommender | 0.980 genre precision at 10 | 0.232 random | lift of 0.748 |
+| 2 Movie vs TV | 0.984 accuracy (Random Forest) | 0.697 | lift of 0.287 |
+| 4 Segmentation | 10 clusters, silhouette 0.27 | n/a | elbow and silhouette agree |
+| 6 Analytics engine | 0.625 accuracy (Gradient Boosting) | 0.460 | lift of 0.164 |
+
+Task 2 ablation: removing the metadata flags costs about 2.5 points (0.984 to
+0.959) and removing both the flags and genre drops it to 0.788, so the model is
+not resting on the director cataloguing convention.
+
+Task 1 surfaced 68 percent of the distinct titles it could possibly have
+surfaced given the evaluation sample size, so recommendations are diverse
+rather than a handful of titles repeating.
 
 Two sample files are committed: `schema_match_sample.csv` matches the
 internship schema exactly and is the default for development, and

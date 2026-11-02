@@ -1,6 +1,6 @@
 feature_set,features_used,accuracy,f1
-All features,10,0.9643,0.9485
-Without metadata flags,9,0.9571,0.9375
-Without genre,9,0.9429,0.9149
-Without metadata flags and genre,8,0.7143,0.4737
-Numeric features only,7,0.9429,0.9149
+All features,10,0.9835,0.9729
+Without metadata flags,9,0.9585,0.9288
+Without genre,9,0.9488,0.9141
+Without metadata flags and genre,8,0.7884,0.5912
+Numeric features only,7,0.9494,0.9147

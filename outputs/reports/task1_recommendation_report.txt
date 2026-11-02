@@ -1,52 +1,54 @@
 Task 1 - Recommendation samples
 ============================================================
 
-Because you watched: The Great British Baking Show
-                                    title  similarity    type                                            listed_in  release_year rating
-                 Big Dreams, Small Spaces      0.6720 TV Show British TV Shows, International TV Shows, Reality TV          2017   TV-G
-               Terrace House: Aloha State      0.4406 TV Show                   International TV Shows, Reality TV          2017  TV-14
-                                    Buddi      0.4305 TV Show                           British TV Shows, Kids' TV          2020   TV-Y
-                       Bringing Sexy Back      0.4284 TV Show                   International TV Shows, Reality TV          2015  TV-14
-                             Danger Mouse      0.4205 TV Show                           British TV Shows, Kids' TV          2016  TV-Y7
-The Parisian Agency: Exclusive Properties      0.4182 TV Show                   International TV Shows, Reality TV          2021   TV-G
-                        The Circle France      0.4150 TV Show                   International TV Shows, Reality TV          2020  TV-MA
-                       Nailed It! Germany      0.4062 TV Show                   International TV Shows, Reality TV          2020  TV-14
-                                Octonauts      0.3849 TV Show                           British TV Shows, Kids' TV          2015   TV-Y
-                                      W1A      0.3690 TV Show                        British TV Shows, TV Comedies          2017  TV-MA
+Because you watched: Dick Johnson Is Dead
+                                           title  similarity  type     listed_in  release_year rating
+              Crip Camp: A Disability Revolution      0.2951 Movie Documentaries          2020      R
+                             NOVA: Killer Floods      0.2940 Movie Documentaries          2017  TV-PG
+                                    She Did That      0.2940 Movie Documentaries          2019  TV-PG
+American Factory: A Conversation with the Obamas      0.2914 Movie Documentaries          2019   TV-G
+            Liberated: The New Sexual Revolution      0.2848 Movie Documentaries          2017  TV-MA
+        Murder to Mercy: The Cyntoia Brown Story      0.2848 Movie Documentaries          2020  TV-MA
+                   The Irishman: In Conversation      0.2848 Movie Documentaries          2019  TV-MA
+                    The Minimalists: Less Is Now      0.2821 Movie Documentaries          2021  TV-14
+                      Virunga: Gorillas in Peril      0.2821 Movie Documentaries          2015  TV-14
+                     Creating The Queen's Gambit      0.2821 Movie Documentaries          2021  TV-14
 
-Because you watched: Crime Stories: India Detectives
-                         title  similarity    type                                                listed_in  release_year rating
-              Caught on Camera      0.9130 TV Show             British TV Shows, Crime TV Shows, Docuseries          2015  TV-MA
-Killer Women with Piers Morgan      0.9130 TV Show             British TV Shows, Crime TV Shows, Docuseries          2017  TV-MA
-     History's Greatest Hoaxes      0.7186 TV Show                             British TV Shows, Docuseries          2016  TV-PG
-                         Heist      0.6689 TV Show                               Crime TV Shows, Docuseries          2021  TV-MA
-                 Court Justice      0.6153 TV Show       Crime TV Shows, Docuseries, International TV Shows          2017  TV-MA
-               Shadow of Truth      0.6104 TV Show       Crime TV Shows, Docuseries, International TV Shows          2016  TV-MA
-       The Great Train Robbery      0.5957 TV Show British TV Shows, Crime TV Shows, International TV Shows          2013     NR
-                   Drugs, Inc.      0.5753 TV Show                               Crime TV Shows, Docuseries          2015  TV-MA
-                   Dirty Money      0.5753 TV Show                               Crime TV Shows, Docuseries          2020  TV-MA
-                      Wormwood      0.5609 TV Show                               Crime TV Shows, Docuseries          2017  TV-14
+Because you watched: Ganglands
+                 title  similarity    type                                                     listed_in  release_year rating
+                 Lupin      0.6983 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2021  TV-MA
+            Crime Time      0.6983 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2017  TV-MA
+               Smoking      0.6870 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2018  TV-MA
+          Agent Raghav      0.6799 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2015  TV-14
+          Monkey Twins      0.6726 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2018  TV-MA
+         Fatal Destiny      0.6672 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2016  TV-MA
+          Silver Spoon      0.6641 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2015  TV-MA
+                 Fauda      0.6639 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2020  TV-MA
+            Undercover      0.6616 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2020  TV-MA
+The Eagle of El-Se'eed      0.6592 TV Show Crime TV Shows, International TV Shows, TV Action & Adventure          2018  TV-14
 
-Because you watched: Falsa identidad
-                           title  similarity    type                                                                listed_in  release_year rating
-                    Ingobernable      0.7981 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2018  TV-MA
-       The Mess You Leave Behind      0.7738 TV Show             International TV Shows, Spanish-Language TV Shows, TV Dramas          2020  TV-MA
-                   Wild District      0.7364 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2019  TV-MA
-Pablo Escobar, el patrón del mal      0.7364 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2012  TV-MA
-                   Paquita Salas      0.6974 TV Show           International TV Shows, Spanish-Language TV Shows, TV Comedies          2018  TV-MA
-                  Always a Witch      0.6816 TV Show           International TV Shows, Spanish-Language TV Shows, TV Comedies          2019  TV-14
-              Someone Has to Die      0.6603 TV Show        Crime TV Shows, International TV Shows, Spanish-Language TV Shows          2020  TV-MA
-               Qué pena tu serie      0.6464 TV Show     International TV Shows, Romantic TV Shows, Spanish-Language TV Shows          2015  TV-MA
-            The Cook of Castamar      0.6440 TV Show     International TV Shows, Romantic TV Shows, Spanish-Language TV Shows          2021  TV-MA
-                          Jaguar      0.6430 TV Show International TV Shows, Spanish-Language TV Shows, TV Action & Adventure          2021  TV-MA
+Because you watched: Midnight Mass
+                     title  similarity    type                             listed_in  release_year rating
+The Haunting of Hill House      0.7371 TV Show    TV Dramas, TV Horror, TV Mysteries          2018  TV-MA
+                   Ratched      0.7371 TV Show    TV Dramas, TV Horror, TV Mysteries          2020  TV-MA
+   Brand New Cherry Flavor      0.7371 TV Show    TV Dramas, TV Horror, TV Mysteries          2021  TV-MA
+ The Haunting of Bly Manor      0.7371 TV Show    TV Dramas, TV Horror, TV Mysteries          2020  TV-MA
+             The Originals      0.7299 TV Show    TV Dramas, TV Horror, TV Mysteries          2018  TV-14
+                  The Mist      0.7036 TV Show    TV Dramas, TV Horror, TV Mysteries          2017  TV-MA
+                 Lost Girl      0.6966 TV Show    TV Dramas, TV Horror, TV Mysteries          2015  TV-14
+            Penny Dreadful      0.6795 TV Show    TV Dramas, TV Horror, TV Mysteries          2016  TV-MA
+     American Horror Story      0.5648 TV Show TV Horror, TV Mysteries, TV Thrillers          2019  TV-MA
+                  Hannibal      0.5648 TV Show TV Horror, TV Mysteries, TV Thrillers          2015  TV-MA
 
 Evaluation metrics
 ------------------------------------------------------------
 sampled_titles: 200
 top_n: 10
-genre_precision_at_n: 0.979
-type_match_rate: 0.9855
-mean_similarity: 0.4498
-catalogue_coverage: 0.7986
-random_genre_precision: 0.2455
-lift_over_random: 0.7335
+genre_precision_at_n: 0.98
+type_match_rate: 0.9945
+mean_similarity: 0.5427
+catalogue_coverage: 0.1547
+max_possible_coverage: 0.2275
+coverage_vs_ceiling: 0.68
+random_genre_precision: 0.232
+lift_over_random: 0.748

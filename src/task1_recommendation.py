@@ -164,9 +164,18 @@ class NetflixRecommender:
             "genre_precision_at_n": round(float(np.mean(genre_hits)), 4),
             "type_match_rate": round(float(np.mean(type_hits)), 4),
             "mean_similarity": round(float(np.mean(sims)), 4),
-            # Share of the catalogue that showed up in at least one list. A low
-            # value means the recommender keeps pushing the same few titles.
+            # Share of the catalogue that showed up in at least one list. This
+            # is capped by the sample: N queries returning top_n results can
+            # surface at most N * top_n distinct titles, so on a large
+            # catalogue the raw figure looks low even for a diverse
+            # recommender. coverage_vs_ceiling divides by that ceiling and is
+            # the number to read: 1.0 means every recommendation slot held a
+            # different title, low values mean the same few keep reappearing.
             "catalogue_coverage": round(len(recommended_items) / len(self.df), 4),
+            "max_possible_coverage": round(min(sample_size * top_n, len(self.df)) / len(self.df), 4),
+            "coverage_vs_ceiling": round(
+                len(recommended_items) / min(sample_size * top_n, len(self.df)), 4
+            ),
             "random_genre_precision": round(random_precision, 4),
             "lift_over_random": round(float(np.mean(genre_hits)) - random_precision, 4),
         }

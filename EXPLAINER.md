@@ -69,9 +69,8 @@ One row per Netflix title:
 | `listed_in` | genres, comma separated |
 | `description` | one paragraph synopsis (absent from the internship export) |
 
-The sample committed here holds 700 titles. The real file is larger, so every
-number in this document will shift when you swap it in. The direction of the
-findings should not.
+The supplied `Dataset.csv` holds 8,790 titles, 6,126 films and 2,664 series.
+Every number below comes from that file.
 
 **There is no viewership, revenue or user rating column.** That single fact
 shapes most of the design decisions below.
@@ -175,18 +174,24 @@ instead:
   recommender that only ever suggests the same twenty popular titles would
   score well on precision and badly here.
 
-**The number that matters.** Genre precision is around 0.98 on the internship
-schema, and about 0.91 on the 12 column version, but a random recommender
-already scores about 0.25, because a handful of genres dominate the
-catalogue. The lift over random, around 0.66, is the real result. Quote that.
+**The number that matters.** Genre precision is 0.980, but a random
+recommender already scores 0.232, because a handful of genres dominate the
+catalogue. The lift over random, 0.748, is the real result. Quote that.
+
+**On coverage.** The raw coverage figure is 0.155, which looks alarming until
+you notice the ceiling: 200 sampled queries returning 10 results each can
+surface at most 2,000 of 8,790 titles, a ceiling of 0.227. Measured against
+that ceiling the recommender reaches 0.68, meaning roughly two thirds of its
+recommendation slots held a distinct title. A metric without its ceiling is
+another version of a score without a baseline.
 
 ### Task 2: Movie or TV Show
 
 **What it does.** Predicts the content type from the other columns.
 
 **Models compared.** Logistic Regression, Decision Tree, Random Forest,
-Gradient Boosting, plus the baseline. Random Forest usually wins at about 0.97
-accuracy against a 0.65 baseline.
+Gradient Boosting, plus the baseline. Random Forest wins at 0.984 accuracy
+against a 0.697 baseline.
 
 **The ablation table.** This is the part worth understanding. It retrains the
 model with feature groups removed, to see what each one is really worth:
@@ -201,8 +206,10 @@ model with feature groups removed, to see what each one is really worth:
 `has_director` alone accounts for roughly 40 percent of the model's decisions.
 That is not because directors predict content type, but because Netflix records
 a director for films and usually leaves the field blank for series. The model
-was partly learning a data entry habit. Removing it costs only about 1.5
-points, which is the evidence that the rest of the model is doing real work.
+was partly learning a data entry habit. Removing it costs 2.5 points, 0.984
+down to 0.959, which is the evidence that the rest of the model is doing real
+work. Removing both the flags and genre drops it to 0.788, which is where the
+genuinely hard part of the problem sits.
 
 ### Task 4: Content segmentation
 
@@ -235,11 +242,13 @@ is instead the audience band a title is positioned for, Kids through Adult,
 which is a real commercial decision the catalogue does record. Catalogue
 patterns are reported separately by the insight engine.
 
-**Reading the result.** Around 0.55 accuracy across four classes, against a
-baseline of 0.46. A lift of nine points is modest and the report says so
-outright. Genre and release year carry most of the signal. One model, Extra
-Trees, lands slightly *below* baseline, which is left in the table rather than
-quietly dropped.
+**Reading the result.** 0.625 accuracy across four classes against a baseline
+of 0.460, a lift of 16 points. Genre and release year carry most of the signal.
+Gradient Boosting has the best accuracy while Random Forest has the best macro
+F1 (0.590), which is worth understanding: accuracy rewards getting the large
+Adult class right, macro F1 weights all four classes equally and so rewards
+handling the small Kids class. Which one matters depends on what the model is
+for.
 
 **The insight engine** writes sentences from the data: catalogue mix, largest
 genres, the peak acquisition year, how quickly titles reach the platform,
@@ -300,9 +309,10 @@ Three scores were being reported with nothing to compare them to: 0.97 accuracy
 in Task 2, 0.55 in Task 6, 0.91 genre precision in Task 1.
 
 Those numbers mean very different things once a baseline is added. Task 2's
-0.97 against a 0.65 baseline is strong. Task 6's 0.55 against a 0.46 baseline
-is modest. Task 1's 0.91 against 0.25 random is excellent. Without the
-reference point, the smallest achievement looked like the second best one.
+0.984 against a 0.697 baseline is strong. Task 6's 0.625 against a 0.460
+baseline is respectable. Task 1's 0.980 against 0.232 random is excellent.
+Without the reference point, the smallest achievement looked like the best
+one.
 
 A baseline model now runs inside every task and appears in every results table.
 
