@@ -94,21 +94,33 @@ Figures are written to `outputs/figures/` and reports to `outputs/reports/`.
 
 ## Task 1 - Content Recommendation System
 
-Content-based recommender. Genres, cast, director, country, rating and the
-description are combined into one weighted text field per title, vectorised
-with TF-IDF over unigrams and bigrams, and compared with cosine similarity.
-Genres are weighted three times and cast and director twice, because those
-carry more signal than free text.
+Content-based recommender. Genres, director, country, type and rating are
+combined into one weighted text field per title (plus cast and description when
+the dataset carries them), vectorised with TF-IDF over unigrams and bigrams,
+and compared with cosine similarity. Genres are weighted three times and cast
+and director twice, because those carry more signal than free text.
 
 The dataset has no user ratings, so quality is measured with content-level
 proxies instead of click-through: genre precision at N (share of
 recommendations sharing at least one genre with the source title), type match
 rate, catalogue coverage and mean similarity.
 
-A random recommender is scored alongside it. Genre precision of roughly 0.91
-only means something next to the 0.25 that random picks achieve on a catalogue
-dominated by a few large genres, so the lift over random is the result worth
+A random recommender is scored alongside it. Genre precision of 0.980 only
+means something next to the 0.232 that random picks achieve on a catalogue
+dominated by a few large genres, so the lift of 0.748 is the result worth
 quoting.
+
+Raw catalogue coverage reads 0.155, which looks poor until you note its
+ceiling: 200 sampled queries returning 10 results each can reach at most 2,000
+of 8,790 titles. Measured against that ceiling the recommender reaches 0.68.
+
+![Recommended pairs against random pairs](outputs/figures/task1_similarity_distribution.png)
+
+The left panel shows that almost all title pairs score near zero. The right
+panel sets the recommended pairs against random ones, which is what shows the
+recommender is actually separating something.
+
+![Task 1 console output](screenshots/task1_recommendation_console.png)
 
 ## Task 2 - Content Type Prediction Model
 
@@ -123,13 +135,26 @@ states "4 Seasons" or "93 min", genre labels such as "Crime TV Shows" name the
 type inside the label, and every rating beginning "TV-" is by definition a
 television rating. Duration is now excluded, genre labels are stripped of Movie
 and TV wording, and raw ratings are replaced by the audience band. Accuracy
-settles around 0.97 against a 0.65 baseline.
+settles at 0.984 against a 0.697 baseline.
 
 **Ablation.** The script retrains with feature groups removed to show what each
 one is worth. `has_director` drives roughly 40 percent of the decisions, which
 reflects a cataloguing habit rather than content: Netflix records a director for
-films and usually leaves it blank for series. Removing it costs about 1.5
-points, which is the evidence the rest of the model is doing real work.
+films and usually leaves it blank for series. Removing it costs 2.5 points
+(0.984 down to 0.959), which is the evidence the rest of the model is doing
+real work. Removing both the metadata flags and genre drops it to 0.788, which
+is where the genuinely hard part of the problem sits.
+
+![Model comparison](outputs/figures/task2_model_comparison.png)
+
+The baseline is included in every comparison, so 0.984 is read against the
+0.697 that always answering "Movie" already achieves.
+
+![Confusion matrix](outputs/figures/task2_confusion_matrix.png)
+
+![Feature importance](outputs/figures/task2_feature_importance.png)
+
+![Task 2 console output](screenshots/task2_content_type_console.png)
 
 ## Task 4 - Content Segmentation
 
@@ -142,6 +167,19 @@ because a score that is still rising means the search was measured rather than
 the data. Clusters are reported with a readable profile: size, film share,
 median release year, dominant audience band, top genres and example titles.
 
+On the supplied dataset the silhouette score peaks at k = 9 (0.347) and then
+falls away, so the cluster count is chosen by the data rather than by where the
+search happened to stop.
+
+![Elbow and silhouette](outputs/figures/task4_cluster_selection.png)
+
+![Cluster scatter](outputs/figures/task4_cluster_scatter.png)
+
+A silhouette of 0.347 means the groups are real but overlapping, which is the
+honest result for a catalogue where a title can be both a comedy and a drama.
+
+![Task 4 console output](screenshots/task4_segmentation_console.png)
+
 ## Task 6 - Content Success Analytics Engine
 
 End-to-end pipeline covering advanced feature engineering, four models,
@@ -152,9 +190,17 @@ success cannot be measured and claiming otherwise would be dishonest. The
 modelled target is the audience band a title is positioned for (Kids, Family,
 Teen, Adult), which is the commercial decision the catalogue does record.
 Observed catalogue patterns are reported separately by the insight engine.
-Accuracy lands around 0.55 across four classes against a 0.46 baseline, and the
-generated report states that nine point lift outright rather than quoting the
-raw accuracy alone.
+
+Accuracy lands at 0.609 across four classes against a 0.460 baseline, and the
+generated report states that 15 point lift outright rather than quoting the raw
+accuracy alone. Gradient Boosting has the highest accuracy (0.625) while Random
+Forest has the best macro F1 (0.590); the script selects on macro F1, because
+that weights all four classes equally and so rewards handling the small Kids
+class rather than just getting the large Adult class right.
+
+![Analytics dashboard](outputs/figures/task6_analytics_dashboard.png)
+
+![Task 6 console output](screenshots/task6_analytics_engine_console.png)
 
 ## Project layout
 
